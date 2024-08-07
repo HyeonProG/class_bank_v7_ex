@@ -16,10 +16,10 @@ public class MainController {
 	public String mainPage() {
 		System.out.println("mainPage() 호출 확인");
 		// [JSP 파일 찾기(yml 설정)] - view resolver
-		// prefix: /WEB-INF/view
+		// prefix: /WEB-INF/view/
 		//				   /main
 		// suffix: .jsp
-		return "/main";
+		return "main";
 	}
 	
 }
