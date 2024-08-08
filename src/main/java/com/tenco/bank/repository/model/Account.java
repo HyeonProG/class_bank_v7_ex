@@ -17,13 +17,13 @@ public class Account {
 
 	private Integer id;
 	private String number;
-	private String passwor;
+	private String password;
 	private Long balance;
 	private Integer userId;
 	private Timestamp createdAt;
 	
 	// 출금 기능
-	public void withDraw(Long amount) {
+	public void withdraw(Long amount) {
 		// 방어적 코드
 		this.balance -= amount;
 	}

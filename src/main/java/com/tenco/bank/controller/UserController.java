@@ -65,7 +65,7 @@ public class UserController {
 		userService.createUser(dto);
 		
 		
-		return "redirect:/sign-in";
+		return "redirect:/user/sign-in";
 	}
 	
 	/**
