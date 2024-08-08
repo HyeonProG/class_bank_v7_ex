@@ -15,8 +15,12 @@ import com.tenco.bank.service.UserService;
 @RequestMapping("/user") // 비유적 표현 - 대문 처리
 public class UserController {
 
-	@Autowired // DI 처리
 	private UserService userService;
+	
+	@Autowired // 가독성을 위해 선언 - 사용할 필요 없음
+	public UserController(UserService userService) {
+		this.userService = userService;
+	}
 	
 	/**
 	 * 회원 가입 페이지 요청

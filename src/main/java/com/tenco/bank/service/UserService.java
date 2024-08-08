@@ -14,8 +14,12 @@ import com.tenco.bank.repository.interfaces.UserRepository;
 @Service // IoC 대상(싱글톤 패턴) - 제어의 역전
 public class UserService {
 
-	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	public UserService(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 	
 	@Transactional
 	public void createUser(SignUpDTO dto) {
