@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tenco.bank.dto.DepositDTO;
 import com.tenco.bank.dto.SaveDTO;
+import com.tenco.bank.dto.TransferDTO;
 import com.tenco.bank.dto.WithdrawDTO;
 import com.tenco.bank.handler.exception.DataDeliveryException;
 import com.tenco.bank.handler.exception.RedirectException;
@@ -143,6 +144,62 @@ public class AccountService {
 				.dBalance(accountEntity.getBalance())
 				.wAccountId(null)
 				.dAccountId(accountEntity.getId())
+				.build();
+		
+		int rowResultCount = historyRepository.insert(history);
+		if (rowResultCount != 1) {
+			throw new DataDeliveryException(Define.FAILED_PROCESSING, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+	}
+	
+	/**
+	 * 이체 기능
+	 * @param dto
+	 * @param principalId
+	 */
+	@Transactional
+	public void updateAccountTransfer(TransferDTO dto, Integer principalId) {
+		// 1. 출금 계좌 존재 여부
+		Account wAccountEntity = accountRepository.findByNumber(dto.getWAccountNumber());
+		if (wAccountEntity == null) {
+			throw new DataDeliveryException(Define.NOT_EXIST_ACCOUNT, HttpStatus.BAD_REQUEST);
+		}
+		
+		// 2. 입금 계좌 존재 여부
+		Account dAccountEntity = accountRepository.findByNumber(dto.getDAccountNumber());
+		if (dAccountEntity == null) {
+			throw new DataDeliveryException(Define.NOT_EXIST_ACCOUNT, HttpStatus.BAD_REQUEST);
+		}
+		
+		// 3. 출금 계좌 본인 소유 확인
+		wAccountEntity.checkOwner(principalId);
+		
+		// 4. 출금 계좌 비밀번호 확인
+		wAccountEntity.checkPassword(dto.getPassword());
+		
+		// 5. 출금 계좌 잔액 확인
+		wAccountEntity.checkBalance(dto.getAmount());
+		
+		// 6. 입금 계좌 객체 상태값 변경 처리
+		dAccountEntity.deposit(dto.getAmount());
+		
+		// 7. 입금 계좌 업데이트
+		accountRepository.updateById(dAccountEntity);
+		
+		// 8. 출금 계좌 객체 상태값 변경 처리
+		wAccountEntity.withdraw(dto.getAmount());
+		
+		// 9. 출금 계좌 업데이트
+		accountRepository.updateById(wAccountEntity);
+		
+		// 10. 거래 내역 등록 처리
+		History history = History.builder()
+				.amount(dto.getAmount())
+				.wAccountId(wAccountEntity.getId())
+				.dAccountId(dAccountEntity.getId())
+				.wBalance(wAccountEntity.getBalance())
+				.dBalance(dAccountEntity.getBalance())
 				.build();
 		
 		int rowResultCount = historyRepository.insert(history);
