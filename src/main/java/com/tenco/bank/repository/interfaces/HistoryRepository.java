@@ -20,6 +20,11 @@ public interface HistoryRepository {
 	public History findById(Integer id);
 	public List<History> findAll();
 	
-	public List<HistoryAccount> findByAccountIdAndTypeOfHistory(@Param("type") String type, @Param("accountId") Integer accountId);
+	public List<HistoryAccount> findByAccountIdAndTypeOfHistory(@Param("type") String type, 
+																@Param("accountId") Integer accountId,
+																@Param("limit") int limit,
+																@Param("offset") int offset);
+	
+	public int countByAccountIdAndType(@Param("type") String type, @Param("accountId") Integer accountId);
 	
 }
