@@ -7,7 +7,7 @@
 <div class="col-sm-8">
 	<h2>계좌 목록(인증)</h2>
 	<h5>Bank App에 오신걸 환영합니다</h5>
-	
+
 	<!-- 계좌가 없는 경우, 있는 경우를 분리 -->
 	<!-- 계좌가 있는 경우 반복문을 활용 할 예정 -->
 	<c:choose>
@@ -36,7 +36,26 @@
 			</div>
 		</c:otherwise>
 	</c:choose>
-	
+	<br>
+	<!-- Pagination -->
+	<div class="d-flex justify-content-center">
+		<ul class="pagination">
+			<!-- 이전 페이지 -->
+			<li class="page-item <c:if test='${currentPage == 1}'>disabled</c:if>">
+			<a class="page-link" href="?&page=${currentPage - 1}&size=${size}">이전</a>
+			</li>
+			<!-- 현재 페이지 -->
+			<c:forEach begin="1" end="${totalPages}" var="page">
+				<li class="page-item <c:if test='${page == currentPage}'>active</c:if>">
+				<a class="page-link" href="?t&page=${page}&size=${size}">${page}</a>
+				</li>
+			</c:forEach>
+			<!-- 다음 페이지 -->
+			<li class="page-item <c:if test='${currentPage == totalPages}'>disabled</c:if>">
+			<a class="page-link" href="?&page=${currentPage + 1}&size=${size}">이전</a>
+			</li>
+		</ul>
+	</div>
 </div>
 <!-- end of col-sm-8 -->
 </div>

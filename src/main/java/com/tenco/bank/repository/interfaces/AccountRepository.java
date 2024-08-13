@@ -19,7 +19,11 @@ public interface AccountRepository {
 
 	// 계좌 조회
 	// -> 한 사람의 유저는 여러개의 계좌 번호를 가질 수 있다.
-	public List<Account> findByUserId(@Param("userId") Integer principalId);
+	public List<Account> findByUserId(@Param("userId") Integer principalId,
+									  @Param("limit") int limit,
+									  @Param("offset") int offset);
+	
+	public int countByAccountId(@Param("userId") Integer principalId);
 
 	// account id 값으로 계좌 정보 조회
 	public Account findByNumber(@Param("number") String id);

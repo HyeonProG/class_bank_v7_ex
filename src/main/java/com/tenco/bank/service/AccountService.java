@@ -58,10 +58,12 @@ public class AccountService {
 	 * 계좌 목록 조회 기능
 	 * @return
 	 */
-	public List<Account> readAccountListByUserId(Integer userId) {
+	public List<Account> readAccountListByUserId(Integer userId, int page, int size) {
 		List<Account> accountListEntity = null;
+		int limit = size;
+		int offset = (page - 1) * size;
 		try {
-			accountListEntity = accountRepository.findByUserId(userId);
+			accountListEntity = accountRepository.findByUserId(userId, limit, offset);
 		} catch (DataAccessException e) {
 			throw new DataDeliveryException(Define.INVALID_INPUT, HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
@@ -238,6 +240,10 @@ public class AccountService {
 	// 해당 계좌와 거래 유형에 따른 전체 레코드 수를 반환하는 메서드
 	public int countHistoryByAccountIdAndType(String type, Integer accountId) {
 		return historyRepository.countByAccountIdAndType(type, accountId);
+	}
+	
+	public int countByAccountId(Integer principalId) {
+		return accountRepository.countByAccountId(principalId);
 	}
 	
 }

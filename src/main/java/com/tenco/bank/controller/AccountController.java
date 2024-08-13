@@ -73,7 +73,7 @@ public class AccountController {
 		// 4. 서비스 호출 - AccountService
 		accountService.createAccount(dto, principal.getId());
 
-		return "redirect:/index";
+		return "redirect:/account/list";
 	}
 
 	/**
@@ -82,17 +82,25 @@ public class AccountController {
 	 * @return
 	 */
 	@GetMapping({ "/list", "/" })
-	public String listPage(Model model, @SessionAttribute(Define.PRINCIPAL) User principal) {
+	public String listPage(Model model, @SessionAttribute(Define.PRINCIPAL) User principal,
+			@RequestParam(name = "page", defaultValue = "1") int page,
+			@RequestParam(name = "size", defaultValue = "2") int size) {
 
 		// 2. 유효성 검사
 		// 3. 서비스 호출
-		List<Account> accountList = accountService.readAccountListByUserId(principal.getId());
-
+		List<Account> accountList = accountService.readAccountListByUserId(principal.getId(), page, size);
+		// 페이지 개수를 계산하기 위해서 총 페이지 수를 계산해야 한다.
+		int totalRecords = accountService.countByAccountId(principal.getId());
+		int totalPages = (int) Math.ceil((double) totalRecords / size);
 		if (accountList.isEmpty()) {
 			model.addAttribute("accountList", null);
 		} else {
 			model.addAttribute("accountList", accountList);
 		}
+
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", totalPages);
+		model.addAttribute("size", size);
 
 		// JSP에 데이터를 넣어 주는 방법
 		return "account/list";
@@ -197,43 +205,44 @@ public class AccountController {
 		if (dto.getAmount() == null) {
 			throw new DataDeliveryException(Define.ENTER_YOUR_BALANCE, HttpStatus.BAD_REQUEST);
 		}
-		
+
 		if (dto.getAmount().longValue() <= 0) {
 			throw new DataDeliveryException(Define.D_BALANCE_VALUE, HttpStatus.BAD_REQUEST);
 		}
-		
+
 		if (dto.getWAccountNumber() == null || dto.getWAccountNumber().trim().isEmpty()) {
 			throw new DataDeliveryException(Define.ENTER_YOUR_ACCOUNT_NUMBER, HttpStatus.BAD_REQUEST);
 		}
-		
+
 		if (dto.getPassword() == null || dto.getPassword().isEmpty()) {
 			throw new DataDeliveryException(Define.ENTER_YOUR_PASSWORD, HttpStatus.BAD_REQUEST);
 		}
-		
+
 		if (dto.getDAccountNumber() == null || dto.getDAccountNumber().trim().isEmpty()) {
 			throw new DataDeliveryException(Define.ENTER_YOUR_ACCOUNT_NUMBER, HttpStatus.BAD_REQUEST);
 		}
-		
+
 		accountService.updateAccountTransfer(dto, principal.getId());
-		
+
 		return "redirect:/account/list";
-		
+
 	}
-	
+
 	/**
-	 * 계좌 상세 보기 페이지
-	 * 주소 설계 : http://localhost:8080/account/detail/${account.id}?type=all, deposit, withdraw
+	 * 계좌 상세 보기 페이지 주소 설계 :
+	 * http://localhost:8080/account/detail/${account.id}?type=all, deposit,
+	 * withdraw
+	 * 
 	 * @param accountId
 	 * @param type
 	 * @param model
 	 * @return
 	 */
 	@GetMapping("/detail/{accountId}")
-	public String detail(@PathVariable(name = "accountId") Integer accountId, 
-						@RequestParam(required = false, name = "type") String type, 
-						@RequestParam(name = "page", defaultValue = "1") int page,
-						@RequestParam(name = "size", defaultValue = "2") int size,
-						Model model) {
+	public String detail(@PathVariable(name = "accountId") Integer accountId,
+			@RequestParam(required = false, name = "type") String type,
+			@RequestParam(name = "page", defaultValue = "1") int page,
+			@RequestParam(name = "size", defaultValue = "2") int size, Model model) {
 
 		// 유효성 검사
 		List<String> validTypes = Arrays.asList("all", "deposit", "withdraw");
@@ -244,17 +253,17 @@ public class AccountController {
 		// 페이지 개수를 계산하기 위해서 총 페이지 수를 계산해야 한다.
 		int totalRecords = accountService.countHistoryByAccountIdAndType(type, accountId);
 		int totalPages = (int) Math.ceil((double) totalRecords / size);
-		
+
 		Account account = accountService.readAccountById(accountId);
 		List<HistoryAccount> historyList = accountService.readHistoryByAccountId(type, accountId, page, size);
-		
+
 		model.addAttribute("account", account);
 		model.addAttribute("historyList", historyList);
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("type", type);
 		model.addAttribute("size", size);
-		
+
 		return "account/detail";
 	}
 
