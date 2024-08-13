@@ -14,19 +14,16 @@ import com.tenco.bank.repository.model.User;
 import com.tenco.bank.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 
 @Controller // IoC의 대상(싱글톤 패턴으로 관리)
 @RequestMapping("/user") // 비유적 표현 - 대문 처리
+@RequiredArgsConstructor
 public class UserController {
 
+	@Autowired
 	private UserService userService;
 	private final HttpSession session;
-	
-	@Autowired // 가독성을 위해 선언 - 사용할 필요 없음
-	public UserController(UserService userService, HttpSession session) {
-		this.userService = userService;
-		this.session = session;
-	}
 	
 	/**
 	 * 회원 가입 페이지 요청
