@@ -1,6 +1,9 @@
 package com.tenco.bank.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -8,7 +11,7 @@ import com.tenco.bank.handler.AuthIntercepter;
 
 import lombok.RequiredArgsConstructor;
 
-@Configuration
+@Configuration // 여러개의 Bean 등록 가능
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -21,6 +24,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				.addPathPatterns("/account/**")
 				.addPathPatterns("/auth/**");
 
+	}
+	
+	@Bean // IoC대상(싱글톤 처리)
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 	
 }
